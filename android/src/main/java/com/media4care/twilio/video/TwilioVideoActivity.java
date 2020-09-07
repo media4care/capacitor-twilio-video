@@ -311,9 +311,6 @@ public class TwilioVideoActivity extends AppCompatActivity {
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
         localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
-        primaryVideoView.setMirror(true);
-        localVideoTrack.addRenderer(primaryVideoView);
-        localVideoView = primaryVideoView;
 
         audioSwitch.start(
             (audioDevices, audioDevice) -> {
