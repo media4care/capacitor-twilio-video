@@ -157,6 +157,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        // Not calling super.onBackPressed() disables back button
+    }
+
+    @Override
     protected void onDestroy() {
         audioSwitch.stop();
         setVolumeControlStream(savedVolumeControlStream);
