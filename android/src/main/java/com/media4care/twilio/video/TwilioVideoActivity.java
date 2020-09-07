@@ -68,6 +68,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String SHOW_SWITCH_CAMERA_OPTION = "showSwitchCamera";
     private final String SHOW_MUTE_OPTION = "showMute";
     private final String CONTROLS_POSITION_OPTION = "controlsPosition";
+    private final String BUTTON_SIZE_OPTION = "buttonSize";
+
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
@@ -103,6 +105,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private FloatingActionButton muteActionFab;
     private LinearLayout controls;
     private FloatingActionButton hangupActionFab;
+    private FloatingActionButton bigHangupActionFab;
 
     /*
      * Audio management
@@ -127,6 +130,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         hangupActionFab = findViewById(R.id.hangup_action_fab);
+        bigHangupActionFab = findViewById(R.id.big_hangup_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
         controls = findViewById(R.id.controls);
@@ -218,6 +222,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         Boolean showSwitchCamera = pluginOptions.getBoolean(SHOW_SWITCH_CAMERA_OPTION, true);
         Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
         String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
+        String buttonSize = pluginOptions.getString(BUTTON_SIZE_OPTION, "normal");
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
         params.gravity = getLayoutGravity(position);
@@ -226,9 +231,24 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         switchCameraActionFab.setVisibility(showSwitchCamera ? View.VISIBLE : View.INVISIBLE);
         muteActionFab.setVisibility(showMute ? View.VISIBLE : View.INVISIBLE);
+
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         muteActionFab.setOnClickListener(muteClickListener());
-        hangupActionFab.setOnClickListener(hangupClickListener());
+
+        if (buttonSize.equals("large")) {
+            bigHangupActionFab.setOnClickListener(hangupClickListener());
+
+            bigHangupActionFab.setVisibility(View.VISIBLE);
+            hangupActionFab.setVisibility(View.GONE);
+        } else if (buttonSize.equals("normal")) {
+            hangupActionFab.setOnClickListener(hangupClickListener());
+
+            hangupActionFab.setVisibility(View.VISIBLE);
+            bigHangupActionFab.setVisibility(View.GONE);
+        } else {
+            Log.e(TAG, BUTTON_SIZE_OPTION + " option is not valid");
+        }
+    }
 
     private int getLayoutGravity(String position) {
         int result = Gravity.BOTTOM | Gravity.END;

@@ -65,6 +65,18 @@
             app:fabSize="normal"
             app:maxImageSize="24dp" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/big_hangup_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="#F44336"
+            android:src="@drawable/ic_call_end_white_48dp"
+            android:visibility="gone"
+            app:borderWidth="0dp"
+            app:fabCustomSize="100dp"
+            app:fabSize="normal"
+            app:maxImageSize="48dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
