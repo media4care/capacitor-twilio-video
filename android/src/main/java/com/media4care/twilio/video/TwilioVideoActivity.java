@@ -18,6 +18,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import com.getcapacitor.JSObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.media4care.twilio.video.capacitortwiliovideo.R;
 import com.twilio.audioswitch.AudioSwitch;
@@ -44,6 +45,7 @@ import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
 import java.util.Collections;
 import kotlin.Unit;
+import org.json.JSONException;
 
 public class TwilioVideoActivity extends AppCompatActivity {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
@@ -54,6 +56,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     public static final String CLOSE_EVENT = "close-twilio-activity";
     public static final String SEND_EVENT = "send-twilio-event";
 
+    private JSObject pluginOptions;
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
@@ -119,6 +122,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
             requestPermissionForCameraAndMicrophone();
         } else {
             connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
+        }
+
+        try {
+            pluginOptions = new JSObject(arguments.getString("options"));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         initializeUI();
