@@ -1,6 +1,7 @@
 package com.media4care.twilio.video;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -50,6 +51,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
     private static final String TAG = "TwilioVideoActivity";
+    public static final String CLOSE_EVENT = "close-twilio-activity";
     public static final String SEND_EVENT = "send-twilio-event";
 
     /*
@@ -120,6 +122,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
         }
 
         initializeUI();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter(CLOSE_EVENT));
     }
 
     @Override
@@ -773,4 +777,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
             }
         };
     }
+
+    private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    };
 }

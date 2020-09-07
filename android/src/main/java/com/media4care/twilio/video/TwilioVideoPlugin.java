@@ -33,6 +33,13 @@ public class TwilioVideoPlugin extends Plugin {
         call.success();
     }
 
+    @PluginMethod
+    public void leaveTwilioRoom(PluginCall call) {
+        Intent intent = new Intent(TwilioVideoActivity.CLOSE_EVENT);
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+        call.success();
+    }
+
     private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
 
         @Override
