@@ -1,6 +1,8 @@
 package com.media4care.twilio.video;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -56,7 +59,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
     public static final String CLOSE_EVENT = "close-twilio-activity";
     public static final String SEND_EVENT = "send-twilio-event";
 
+    private final int CONTROLS_ANIMATION_DELAY = 3000;
+    private final int CONTROLS_ANIMATION_DURATION = 300;
+
     private JSObject pluginOptions;
+    private final String AUTO_HIDE_CONTROLS_OPTION = "autoHideControls";
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
@@ -90,6 +97,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton muteActionFab;
+    private LinearLayout controls;
     private FloatingActionButton hangupActionFab;
 
     /*
@@ -117,6 +125,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         hangupActionFab = findViewById(R.id.hangup_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
+        controls = findViewById(R.id.controls);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -130,9 +139,17 @@ public class TwilioVideoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        showForAFewSeconds();
+
         initializeUI();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter(CLOSE_EVENT));
+    }
+
+    @Override
+    public void onUserInteraction() {
+        showForAFewSeconds();
+        super.onUserInteraction();
     }
 
     @Override
@@ -163,6 +180,29 @@ public class TwilioVideoActivity extends AppCompatActivity {
         }
 
         super.onDestroy();
+    }
+
+    private void showForAFewSeconds() {
+        Boolean autoHide = pluginOptions.getBoolean(AUTO_HIDE_CONTROLS_OPTION, true);
+
+        if (controls.getVisibility() == View.VISIBLE || !autoHide) return;
+
+        controls.setVisibility(View.VISIBLE);
+        controls
+            .animate()
+            .alpha(0f)
+            .setStartDelay(CONTROLS_ANIMATION_DELAY)
+            .setDuration(CONTROLS_ANIMATION_DURATION)
+            .setListener(
+                new AnimatorListenerAdapter() {
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        controls.setVisibility(View.GONE);
+                        controls.setAlpha(1f);
+                    }
+                }
+            );
     }
 
     private void initializeUI() {
