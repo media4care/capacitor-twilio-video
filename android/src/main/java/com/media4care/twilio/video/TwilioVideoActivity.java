@@ -101,6 +101,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
 
+        Bundle arguments = getIntent().getExtras();
+        if (arguments == null) Log.d(TAG, "roomName and accessToken are missing");
+
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
@@ -109,7 +112,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
         } else {
-            // connectToRoom
+            connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
         }
 
         initializeUI();
