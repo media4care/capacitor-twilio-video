@@ -99,6 +99,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_twilio_video);
 
+        getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
