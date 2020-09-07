@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,6 +65,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private JSObject pluginOptions;
     private final String AUTO_HIDE_CONTROLS_OPTION = "autoHideControls";
+    private final String SHOW_SWITCH_CAMERA_OPTION = "showSwitchCamera";
+    private final String SHOW_MUTE_OPTION = "showMute";
+    private final String CONTROLS_POSITION_OPTION = "controlsPosition";
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
@@ -206,9 +210,35 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     private void initializeUI() {
+        Boolean showSwitchCamera = pluginOptions.getBoolean(SHOW_SWITCH_CAMERA_OPTION, true);
+        Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
+        String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
+
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
+        params.gravity = getLayoutGravity(position);
+
+        hangupActionFab.setScaleType(ImageView.ScaleType.CENTER);
+
+        switchCameraActionFab.setVisibility(showSwitchCamera ? View.VISIBLE : View.INVISIBLE);
+        muteActionFab.setVisibility(showMute ? View.VISIBLE : View.INVISIBLE);
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         muteActionFab.setOnClickListener(muteClickListener());
         hangupActionFab.setOnClickListener(hangupClickListener());
+
+    private int getLayoutGravity(String position) {
+        int result = Gravity.BOTTOM | Gravity.END;
+
+        if (position.equals("bottom_center")) {
+            result = Gravity.BOTTOM | Gravity.CENTER;
+        } else if (position.equals("bottom_start")) {
+            result = Gravity.BOTTOM | Gravity.START;
+        } else if (position.equals("bottom_end")) {
+            result = Gravity.BOTTOM | Gravity.END;
+        } else {
+            Log.e(TAG, CONTROLS_POSITION_OPTION + " option is not valid");
+        }
+
+        return result;
     }
 
     private boolean checkPermissionForCameraAndMicrophone() {
