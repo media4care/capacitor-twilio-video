@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.media4care.twilio.video.capacitortwiliovideo.R;
 import com.twilio.audioswitch.AudioSwitch;
@@ -49,6 +50,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
     private static final String TAG = "TwilioVideoActivity";
+    public static final String SEND_EVENT = "send-twilio-event";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -83,6 +85,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton muteActionFab;
+    private FloatingActionButton hangupActionFab;
 
     /*
      * Audio management
@@ -106,6 +109,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
+        hangupActionFab = findViewById(R.id.hangup_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
 
@@ -151,6 +155,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private void initializeUI() {
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         muteActionFab.setOnClickListener(muteClickListener());
+        hangupActionFab.setOnClickListener(hangupClickListener());
     }
 
     private boolean checkPermissionForCameraAndMicrophone() {
@@ -335,6 +340,17 @@ public class TwilioVideoActivity extends AppCompatActivity {
         connectOptionsBuilder.enableAutomaticSubscription(true);
 
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
+    }
+
+    private void sendTwilioEvent(String event) {
+        sendTwilioEvent(event, "");
+    }
+
+    private void sendTwilioEvent(String event, String detail) {
+        Intent intent = new Intent(SEND_EVENT);
+        intent.putExtra("event", event);
+        intent.putExtra("detail", detail);
+        LocalBroadcastManager.getInstance(TwilioVideoActivity.this).sendBroadcast(intent);
     }
 
     private Room.Listener roomListener() {
@@ -719,6 +735,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 RemoteParticipant remoteParticipant,
                 RemoteVideoTrackPublication remoteVideoTrackPublication
             ) {}
+        };
+    }
+
+    private View.OnClickListener hangupClickListener() {
+        return v -> {
+            sendTwilioEvent("hangup");
         };
     }
 
