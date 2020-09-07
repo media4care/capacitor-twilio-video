@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -69,6 +70,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String SHOW_MUTE_OPTION = "showMute";
     private final String CONTROLS_POSITION_OPTION = "controlsPosition";
     private final String BUTTON_SIZE_OPTION = "buttonSize";
+    private final String STATUS_TEXT_CONNECTING = "connectingText";
+    private final String STATUS_TEXT_RECONNECTING = "reconnectingText";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -103,6 +106,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton muteActionFab;
+    private TextView statusText;
     private LinearLayout controls;
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
@@ -134,6 +138,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
         controls = findViewById(R.id.controls);
+        statusText = findViewById(R.id.statusText);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -223,6 +228,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
         Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
         String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
         String buttonSize = pluginOptions.getString(BUTTON_SIZE_OPTION, "normal");
+        String connectingText = pluginOptions.getString(STATUS_TEXT_CONNECTING, "Connecting...");
+
+        statusText.setText(connectingText);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
         params.gravity = getLayoutGravity(position);
@@ -383,6 +391,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         moveLocalVideoToThumbnailView();
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
+        statusText.setVisibility(View.GONE);
     }
 
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
@@ -484,11 +493,18 @@ public class TwilioVideoActivity extends AppCompatActivity {
             @Override
             public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
                 sendTwilioEvent(TWILIO_EVENT_RECONNECTING);
+
+                String reconnectingText = pluginOptions.getString(STATUS_TEXT_RECONNECTING, "Reconnecting...");
+
+                statusText.setVisibility(View.VISIBLE);
+                statusText.setText(reconnectingText);
             }
 
             @Override
             public void onReconnected(@NonNull Room room) {
                 sendTwilioEvent(TWILIO_EVENT_RECONNECTED);
+
+                statusText.setVisibility(View.GONE);
             }
 
             @Override
