@@ -358,6 +358,14 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     private Room.Listener roomListener() {
+        String TWILIO_EVENT_CONNECTED = "connected";
+        String TWILIO_EVENT_RECONNECTING = "reconnecting";
+        String TWILIO_EVENT_RECONNECTED = "reconnected";
+        String TWILIO_EVENT_CONNECTION_FAILED = "connection-failed";
+        String TWILIO_EVENT_DISCONNECTED = "disconnected";
+        String TWILIO_EVENT_PARTICIPANT_CONNECTED = "participant-connected";
+        String TWILIO_EVENT_PARTICIPANT_DISCONNECTED = "participant-disconnected";
+
         return new Room.Listener() {
 
             @Override
@@ -368,17 +376,24 @@ public class TwilioVideoActivity extends AppCompatActivity {
                     addRemoteParticipant(remoteParticipant);
                     break;
                 }
+
+                sendTwilioEvent(TWILIO_EVENT_CONNECTED);
             }
 
             @Override
-            public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {}
+            public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
+                sendTwilioEvent(TWILIO_EVENT_RECONNECTING);
+            }
 
             @Override
-            public void onReconnected(@NonNull Room room) {}
+            public void onReconnected(@NonNull Room room) {
+                sendTwilioEvent(TWILIO_EVENT_RECONNECTED);
+            }
 
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
                 audioSwitch.deactivate();
+                sendTwilioEvent(TWILIO_EVENT_CONNECTION_FAILED);
             }
 
             @Override
@@ -391,16 +406,20 @@ public class TwilioVideoActivity extends AppCompatActivity {
                     audioSwitch.deactivate();
                     moveLocalVideoToPrimaryView();
                 }
+
+                sendTwilioEvent(TWILIO_EVENT_DISCONNECTED);
             }
 
             @Override
             public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
                 addRemoteParticipant(remoteParticipant);
+                sendTwilioEvent(TWILIO_EVENT_PARTICIPANT_CONNECTED);
             }
 
             @Override
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
                 removeRemoteParticipant(remoteParticipant);
+                sendTwilioEvent(TWILIO_EVENT_PARTICIPANT_DISCONNECTED);
             }
 
             @Override
