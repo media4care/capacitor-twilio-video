@@ -152,9 +152,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        showForAFewSeconds();
-
         initializeUI();
+
+        showForAFewSeconds();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter(CLOSE_EVENT));
     }
@@ -224,6 +224,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     private void initializeUI() {
+        Boolean autoHide = pluginOptions.getBoolean(AUTO_HIDE_CONTROLS_OPTION, true);
         Boolean showSwitchCamera = pluginOptions.getBoolean(SHOW_SWITCH_CAMERA_OPTION, true);
         Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
         String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
@@ -231,6 +232,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
         String connectingText = pluginOptions.getString(STATUS_TEXT_CONNECTING, "Connecting...");
 
         statusText.setText(connectingText);
+
+        controls.setVisibility(autoHide ? View.GONE : View.VISIBLE);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
         params.gravity = getLayoutGravity(position);
