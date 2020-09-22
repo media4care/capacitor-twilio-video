@@ -35,9 +35,7 @@
   },
   "files": [
     "dist/",
-    "ios/",
-    "android/",
-    "CapacitorTwilioVideo.podspec"
+    "android/"
   ],
   "keywords": [
     "capacitor",
@@ -45,9 +43,6 @@
     "native"
   ],
   "capacitor": {
-    "ios": {
-      "src": "ios"
-    },
     "android": {
       "src": "android"
     }
