@@ -27,6 +27,7 @@ import com.getcapacitor.JSObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.media4care.twilio.video.capacitortwiliovideo.R;
 import com.twilio.audioswitch.AudioSwitch;
+import com.twilio.audioswitch.AudioDevice;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
 import com.twilio.video.ConnectOptions;
@@ -315,6 +316,13 @@ public class TwilioVideoActivity extends AppCompatActivity {
         }
     }
 
+    private void toggleSpeakerphone(AudioDevice selectedAudioDevice) {
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+        if (selectedAudioDevice instanceof AudioDevice.Speakerphone || selectedAudioDevice instanceof AudioDevice.Earpiece) audioManager.setSpeakerphoneOn(true);
+        else audioManager.setSpeakerphoneOn(false);
+    }
+
     private void createAudioAndVideoTracks() {
         // Share your microphone
         localAudioTrack = LocalAudioTrack.create(this, true, LOCAL_AUDIO_TRACK_NAME);
@@ -324,8 +332,10 @@ public class TwilioVideoActivity extends AppCompatActivity {
         localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
 
         audioSwitch.start(
-            (audioDevices, audioDevice) -> {
+            (audioDevices, selectedAudioDevice) -> {
                 // TODO Enable user select audio device
+
+                if(selectedAudioDevice != null) toggleSpeakerphone(selectedAudioDevice);
                 return Unit.INSTANCE;
             }
         );
