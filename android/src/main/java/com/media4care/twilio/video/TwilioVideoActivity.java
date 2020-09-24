@@ -516,6 +516,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         createAudioAndVideoTracks();
 
+        audioSwitch.activate();
         ConnectOptions.Builder connectOptionsBuilder = new ConnectOptions.Builder(accessToken).roomName(roomName);
 
         /*
