@@ -13,11 +13,15 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -49,7 +53,11 @@ import com.twilio.video.VideoCodec;
 import com.twilio.video.VideoRenderer;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
 import kotlin.Unit;
 import org.json.JSONException;
 
@@ -117,6 +125,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
      */
     private AudioSwitch audioSwitch;
     private int savedVolumeControlStream;
+    private MenuItem audioDeviceMenuItem;
 
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
@@ -161,6 +170,33 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_video_activity, menu);
+        audioDeviceMenuItem = menu.findItem(R.id.menu_audio_device);
+
+        /*
+         * Start the audio device selector after the menu is created and update the icon when the
+         * selected audio device changes.
+         */
+        audioSwitch.start((audioDevices, audioDevice) -> {
+            updateAudioDeviceIcon(audioDevice);
+            return Unit.INSTANCE;
+        });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_audio_device) {
+            showAudioDevices();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onUserInteraction() {
         showForAFewSeconds();
         super.onUserInteraction();
@@ -199,6 +235,25 @@ public class TwilioVideoActivity extends AppCompatActivity {
         }
 
         super.onDestroy();
+    }
+
+    /*
+     * Update the menu icon based on the currently selected audio device.
+     */
+    private void updateAudioDeviceIcon(AudioDevice selectedAudioDevice) {
+        int audioDeviceMenuIcon = R.drawable.ic_phonelink_ring_white_24dp;
+
+        if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) {
+            audioDeviceMenuIcon = R.drawable.ic_bluetooth_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.WiredHeadset) {
+            audioDeviceMenuIcon = R.drawable.ic_headset_mic_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.Earpiece) {
+            audioDeviceMenuIcon = R.drawable.ic_phonelink_ring_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.Speakerphone) {
+            audioDeviceMenuIcon = R.drawable.ic_volume_up_white_24dp;
+        }
+
+        audioDeviceMenuItem.setIcon(audioDeviceMenuIcon);
     }
 
     private void showForAFewSeconds() {
@@ -330,15 +385,6 @@ public class TwilioVideoActivity extends AppCompatActivity {
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
         localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
-
-        audioSwitch.start(
-            (audioDevices, selectedAudioDevice) -> {
-                // TODO Enable user select audio device
-
-                if(selectedAudioDevice != null) toggleSpeakerphone(selectedAudioDevice);
-                return Unit.INSTANCE;
-            }
-        );
     }
 
     private CameraCapturer.CameraSource getAvailableCameraSource() {
@@ -431,6 +477,35 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private void removeParticipantVideo(VideoTrack videoTrack) {
         videoTrack.removeRenderer(primaryVideoView);
+    }
+
+    /*
+     * Show the current available audio devices.
+     */
+    private void showAudioDevices() {
+        AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
+        List<AudioDevice> availableAudioDevices = audioSwitch.getAvailableAudioDevices();
+
+        if (selectedDevice != null) {
+            int selectedDeviceIndex = availableAudioDevices.indexOf(selectedDevice);
+
+            ArrayList<String> audioDeviceNames = new ArrayList<>();
+            for (AudioDevice a : availableAudioDevices) {
+                audioDeviceNames.add(a.getName());
+            }
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Select Audio Device")
+                    .setSingleChoiceItems(
+                            audioDeviceNames.toArray(new CharSequence[0]),
+                            selectedDeviceIndex,
+                            (dialog, index) -> {
+                                dialog.dismiss();
+                                AudioDevice selectedAudioDevice = availableAudioDevices.get(index);
+                                updateAudioDeviceIcon(selectedAudioDevice);
+                                audioSwitch.selectDevice(selectedAudioDevice);
+                            }).create().show();
+        }
     }
 
     private void connectToRoom(String roomName, String accessToken) {

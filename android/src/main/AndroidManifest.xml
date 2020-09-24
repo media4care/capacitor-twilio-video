@@ -5,7 +5,7 @@
     <application>
         <activity
             android:name="com.media4care.twilio.video.TwilioVideoActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
     </application>
 
 </manifest>
