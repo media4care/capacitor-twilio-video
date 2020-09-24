@@ -319,7 +319,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private void toggleSpeakerphone(AudioDevice selectedAudioDevice) {
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
-        if (selectedAudioDevice instanceof AudioDevice.Speakerphone || selectedAudioDevice instanceof AudioDevice.Earpiece) audioManager.setSpeakerphoneOn(true);
+        if (selectedAudioDevice instanceof AudioDevice.Speakerphone) audioManager.setSpeakerphoneOn(true);
         else audioManager.setSpeakerphoneOn(false);
     }
 
@@ -335,7 +335,28 @@ public class TwilioVideoActivity extends AppCompatActivity {
             (audioDevices, selectedAudioDevice) -> {
                 // TODO Enable user select audio device
 
+                if (selectedAudioDevice instanceof AudioDevice.Speakerphone) Log.e("m4c Audio", "Speakerphone");
+                else if (selectedAudioDevice instanceof AudioDevice.WiredHeadset) Log.e("m4c Audio", "WiredHeadset");
+                else if (selectedAudioDevice instanceof AudioDevice.Earpiece) Log.e("m4c Audio", "Earpiece");
+                else if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) Log.e("m4c Audio", "BluetoothHeadset");
+                else Log.e("m4c Audio", "Unknown");
+
                 if(selectedAudioDevice != null) toggleSpeakerphone(selectedAudioDevice);
+                else Log.e("m4c Audio", "selectedAudiodevice is null");
+
+                AudioDevice speaker = null;
+                for (AudioDevice audioDevice: audioDevices) {
+                    if (audioDevice instanceof AudioDevice.Speakerphone) {
+                        speaker = audioDevice;
+                        break;
+                    }
+
+                }
+
+                if (selectedAudioDevice instanceof AudioDevice.Earpiece && speaker != null) {
+                    audioSwitch.selectDevice(speaker);
+                }
+
                 return Unit.INSTANCE;
             }
         );
