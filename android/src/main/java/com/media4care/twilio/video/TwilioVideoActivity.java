@@ -341,8 +341,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 else if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) Log.e("m4c Audio", "BluetoothHeadset");
                 else Log.e("m4c Audio", "Unknown");
 
-                if(selectedAudioDevice != null) toggleSpeakerphone(selectedAudioDevice);
-                else Log.e("m4c Audio", "selectedAudiodevice is null");
+               // if(selectedAudioDevice != null) toggleSpeakerphone(selectedAudioDevice);
+               // else Log.e("m4c Audio", "selectedAudiodevice is null");
 
                 AudioDevice speaker = null;
                 for (AudioDevice audioDevice: audioDevices) {
