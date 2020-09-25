@@ -27,6 +27,7 @@ import com.getcapacitor.JSObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.media4care.twilio.video.capacitortwiliovideo.R;
 import com.twilio.audioswitch.AudioSwitch;
+import com.twilio.audioswitch.AudioDevice;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
 import com.twilio.video.ConnectOptions;
@@ -51,6 +52,9 @@ import com.twilio.video.VideoView;
 import java.util.Collections;
 import kotlin.Unit;
 import org.json.JSONException;
+
+import java.util.List;
+
 
 public class TwilioVideoActivity extends AppCompatActivity {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
@@ -324,8 +328,10 @@ public class TwilioVideoActivity extends AppCompatActivity {
         localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
 
         audioSwitch.start(
-            (audioDevices, audioDevice) -> {
-                // TODO Enable user select audio device
+            (audioDevices, selectedAudioDevice) -> {
+                if(selectedAudioDevice != null) {
+                    if (selectedAudioDevice instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+                }
                 return Unit.INSTANCE;
             }
         );
@@ -421,6 +427,17 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private void removeParticipantVideo(VideoTrack videoTrack) {
         videoTrack.removeRenderer(primaryVideoView);
+    }
+
+
+    private void selectSpeakerAsAudioOutput() {
+        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+        for (AudioDevice audioDevice: devices) {
+            if(audioDevice instanceof AudioDevice.Speakerphone) {
+                audioSwitch.selectDevice(audioDevice);
+                break;
+            }
+        }
     }
 
     private void connectToRoom(String roomName, String accessToken) {
