@@ -483,6 +483,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
             @Override
             public void onConnected(Room room) {
+                audioSwitch.activate();
                 localParticipant = room.getLocalParticipant();
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
