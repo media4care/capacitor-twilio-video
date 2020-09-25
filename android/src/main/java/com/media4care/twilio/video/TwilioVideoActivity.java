@@ -329,8 +329,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         audioSwitch.start(
             (audioDevices, selectedAudioDevice) -> {
-                if(selectedAudioDevice != null) {
-                    if (selectedAudioDevice instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+                if(selectedAudioDevice != null && selectedAudioDevice instanceof AudioDevice.Earpiece) {
+                    selectSpeakerAsAudioOutput();
                 }
                 return Unit.INSTANCE;
             }
@@ -442,6 +442,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private void connectToRoom(String roomName, String accessToken) {
         audioSwitch = new AudioSwitch(getApplicationContext());
+
+        AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
+        if (selectedDevice instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
 
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
