@@ -4,6 +4,8 @@
 
     <application>
         <activity
+            android:keepScreenOn="true"
+            android:showWhenLocked="true"
             android:name="com.media4care.twilio.video.TwilioVideoActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
