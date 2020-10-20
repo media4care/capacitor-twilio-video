@@ -33,8 +33,15 @@ import com.twilio.video.CameraCapturer;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
 import com.twilio.video.LocalAudioTrack;
+import com.twilio.video.LocalAudioTrackPublication;
+import com.twilio.video.LocalDataTrack;
+import com.twilio.video.LocalDataTrackPublication;
 import com.twilio.video.LocalParticipant;
 import com.twilio.video.LocalVideoTrack;
+import com.twilio.video.LocalVideoTrackPublication;
+import com.twilio.video.NetworkQualityConfiguration;
+import com.twilio.video.NetworkQualityLevel;
+import com.twilio.video.NetworkQualityVerbosity;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -117,6 +124,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
 
+    private TextView localParticipantNQStatus;
+    private TextView remoteParticipantNQStatus;
     /*
      * Audio management
      */
@@ -146,6 +155,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
         toggleCameraActionFab = findViewById(R.id.toggle_cam_action_fab);
         controls = findViewById(R.id.controls);
         statusText = findViewById(R.id.statusText);
+
+        localParticipantNQStatus = findViewById(R.id.localParticipantQuality);
+        remoteParticipantNQStatus = findViewById(R.id.remoteParticipantQuality);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -482,6 +494,15 @@ public class TwilioVideoActivity extends AppCompatActivity {
          */
         connectOptionsBuilder.enableAutomaticSubscription(true);
 
+        connectOptionsBuilder.enableNetworkQuality(true);
+
+        NetworkQualityConfiguration nqConfiguration = new NetworkQualityConfiguration(
+                NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL,
+                NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL
+        );
+
+        connectOptionsBuilder.networkQualityConfiguration(nqConfiguration);
+
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
     }
 
@@ -511,6 +532,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
             public void onConnected(Room room) {
                 audioSwitch.activate();
                 localParticipant = room.getLocalParticipant();
+                localParticipant.setListener(localParticipantListener());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -905,6 +927,50 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 RemoteParticipant remoteParticipant,
                 RemoteVideoTrackPublication remoteVideoTrackPublication
             ) {}
+
+            @Override
+            public void onNetworkQualityLevelChanged(@NonNull RemoteParticipant remoteParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
+                remoteParticipantNQStatus.setText("Remote: " + networkQualityLevel.name());
+            }
+        };
+    }
+
+    private LocalParticipant.Listener localParticipantListener() {
+        return new LocalParticipant.Listener() {
+            @Override
+            public void onNetworkQualityLevelChanged(@NonNull LocalParticipant localParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
+                localParticipantNQStatus.setText("Local: " + networkQualityLevel.name());
+            }
+
+            @Override
+            public void onAudioTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalAudioTrackPublication localAudioTrackPublication) {
+
+            }
+
+            @Override
+            public void onAudioTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalAudioTrack localAudioTrack, @NonNull TwilioException twilioException) {
+
+            }
+
+            @Override
+            public void onVideoTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalVideoTrackPublication localVideoTrackPublication) {
+
+            }
+
+            @Override
+            public void onVideoTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalVideoTrack localVideoTrack, @NonNull TwilioException twilioException) {
+
+            }
+
+            @Override
+            public void onDataTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalDataTrackPublication localDataTrackPublication) {
+
+            }
+
+            @Override
+            public void onDataTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalDataTrack localDataTrack, @NonNull TwilioException twilioException) {
+
+            }
         };
     }
 
