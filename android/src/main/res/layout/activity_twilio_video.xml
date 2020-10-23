@@ -101,24 +101,31 @@
         app:layout_anchorGravity="center" />
 
     <LinearLayout
+        android:id="@+id/networkQualityToolbar"
+        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:orientation="vertical">
+        android:layout_gravity="top|right">
 
         <TextView
             android:id="@+id/localParticipantQuality"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="14dp"
-            android:text="Local: " />
+            android:gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:text="Quality"
+            android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/remoteParticipantQuality"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="14dp"
-            android:text="Remote: " />
+        <ImageView
+            android:id="@+id/signalIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:src="@drawable/ic_signal_cellular_alt_24dp" />
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
