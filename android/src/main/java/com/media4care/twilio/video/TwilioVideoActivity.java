@@ -33,8 +33,15 @@ import com.twilio.video.CameraCapturer;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
 import com.twilio.video.LocalAudioTrack;
+import com.twilio.video.LocalAudioTrackPublication;
+import com.twilio.video.LocalDataTrack;
+import com.twilio.video.LocalDataTrackPublication;
 import com.twilio.video.LocalParticipant;
 import com.twilio.video.LocalVideoTrack;
+import com.twilio.video.LocalVideoTrackPublication;
+import com.twilio.video.NetworkQualityConfiguration;
+import com.twilio.video.NetworkQualityLevel;
+import com.twilio.video.NetworkQualityVerbosity;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -72,6 +79,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String AUTO_HIDE_CONTROLS_OPTION = "autoHideControls";
     private final String SHOW_SWITCH_CAMERA_OPTION = "showSwitchCamera";
     private final String SHOW_MUTE_OPTION = "showMute";
+    private final String SHOW_DISABLE_VIDEO = "showDisableVideo";
     private final String CONTROLS_POSITION_OPTION = "controlsPosition";
     private final String BUTTON_SIZE_OPTION = "buttonSize";
     private final String STATUS_TEXT_CONNECTING = "connectingText";
@@ -110,11 +118,14 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton muteActionFab;
+    private FloatingActionButton toggleCameraActionFab;
     private TextView statusText;
     private LinearLayout controls;
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
 
+    private TextView localParticipantNQStatus;
+    private TextView remoteParticipantNQStatus;
     /*
      * Audio management
      */
@@ -141,8 +152,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
         bigHangupActionFab = findViewById(R.id.big_hangup_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
+        toggleCameraActionFab = findViewById(R.id.toggle_cam_action_fab);
         controls = findViewById(R.id.controls);
         statusText = findViewById(R.id.statusText);
+
+        localParticipantNQStatus = findViewById(R.id.localParticipantQuality);
+        remoteParticipantNQStatus = findViewById(R.id.remoteParticipantQuality);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -231,6 +246,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         Boolean autoHide = pluginOptions.getBoolean(AUTO_HIDE_CONTROLS_OPTION, true);
         Boolean showSwitchCamera = pluginOptions.getBoolean(SHOW_SWITCH_CAMERA_OPTION, true);
         Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
+        Boolean showToggleCamera = pluginOptions.getBoolean(SHOW_DISABLE_VIDEO, true);
         String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
         String buttonSize = pluginOptions.getString(BUTTON_SIZE_OPTION, "normal");
         String connectingText = pluginOptions.getString(STATUS_TEXT_CONNECTING, "Connecting...");
@@ -246,9 +262,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         switchCameraActionFab.setVisibility(showSwitchCamera ? View.VISIBLE : View.INVISIBLE);
         muteActionFab.setVisibility(showMute ? View.VISIBLE : View.INVISIBLE);
+        toggleCameraActionFab.setVisibility(showToggleCamera ? View.VISIBLE : View.INVISIBLE);
 
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         muteActionFab.setOnClickListener(muteClickListener());
+        toggleCameraActionFab.setOnClickListener(toggleCamClickListener());
 
         if (buttonSize.equals("large")) {
             bigHangupActionFab.setOnClickListener(hangupClickListener());
@@ -476,6 +494,15 @@ public class TwilioVideoActivity extends AppCompatActivity {
          */
         connectOptionsBuilder.enableAutomaticSubscription(true);
 
+        connectOptionsBuilder.enableNetworkQuality(true);
+
+        NetworkQualityConfiguration nqConfiguration = new NetworkQualityConfiguration(
+                NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL,
+                NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL
+        );
+
+        connectOptionsBuilder.networkQualityConfiguration(nqConfiguration);
+
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
     }
 
@@ -505,6 +532,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
             public void onConnected(Room room) {
                 audioSwitch.activate();
                 localParticipant = room.getLocalParticipant();
+                localParticipant.setListener(localParticipantListener());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -899,6 +927,50 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 RemoteParticipant remoteParticipant,
                 RemoteVideoTrackPublication remoteVideoTrackPublication
             ) {}
+
+            @Override
+            public void onNetworkQualityLevelChanged(@NonNull RemoteParticipant remoteParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
+                remoteParticipantNQStatus.setText("Remote: " + networkQualityLevel.name());
+            }
+        };
+    }
+
+    private LocalParticipant.Listener localParticipantListener() {
+        return new LocalParticipant.Listener() {
+            @Override
+            public void onNetworkQualityLevelChanged(@NonNull LocalParticipant localParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
+                localParticipantNQStatus.setText("Local: " + networkQualityLevel.name());
+            }
+
+            @Override
+            public void onAudioTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalAudioTrackPublication localAudioTrackPublication) {
+
+            }
+
+            @Override
+            public void onAudioTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalAudioTrack localAudioTrack, @NonNull TwilioException twilioException) {
+
+            }
+
+            @Override
+            public void onVideoTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalVideoTrackPublication localVideoTrackPublication) {
+
+            }
+
+            @Override
+            public void onVideoTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalVideoTrack localVideoTrack, @NonNull TwilioException twilioException) {
+
+            }
+
+            @Override
+            public void onDataTrackPublished(@NonNull LocalParticipant localParticipant, @NonNull LocalDataTrackPublication localDataTrackPublication) {
+
+            }
+
+            @Override
+            public void onDataTrackPublicationFailed(@NonNull LocalParticipant localParticipant, @NonNull LocalDataTrack localDataTrack, @NonNull TwilioException twilioException) {
+
+            }
         };
     }
 
@@ -935,6 +1007,17 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 int icon = enable ? R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
                 muteActionFab.setImageDrawable(ContextCompat.getDrawable(TwilioVideoActivity.this, icon));
             }
+        };
+    }
+
+    private View.OnClickListener toggleCamClickListener() {
+        return v -> {
+          if (localVideoTrack != null) {
+              boolean enable = !localVideoTrack.isEnabled();
+              localVideoTrack.enable(enable);
+              int icon = enable ? R.drawable.ic_videocam_white_24dp : R.drawable.ic_videocam_off_black_24dp;
+              toggleCameraActionFab.setImageDrawable(ContextCompat.getDrawable(TwilioVideoActivity.this, icon));
+          }
         };
     }
 

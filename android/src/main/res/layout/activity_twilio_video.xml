@@ -55,6 +55,16 @@
             app:fabSize="mini" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/toggle_cam_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_videocam_white_24dp"
+            app:borderWidth="0dp"
+            app:fabSize="mini" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/hangup_action_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,5 +99,26 @@
         android:textSize="18sp"
         app:layout_anchor="@+id/primary_video_view"
         app:layout_anchorGravity="center" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/localParticipantQuality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:text="Local: " />
+
+        <TextView
+            android:id="@+id/remoteParticipantQuality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:text="Remote: " />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
