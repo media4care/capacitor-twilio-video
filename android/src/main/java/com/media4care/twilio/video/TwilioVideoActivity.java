@@ -946,20 +946,20 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 String unstableConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Unstable connection");
                 String badConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Bad connection");
 
-                if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_FIVE || networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_FOUR) {
-                    networkQuality.setVisibility(View.INVISIBLE);
-                } else if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_THREE) {
+                if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_ONE) {
+                    int color = Color.parseColor("#F44336");
+                    networkQuality.setVisibility(View.VISIBLE);
+                    localParticipantNQStatus.setText(badConnection);
+                    localParticipantNQStatus.setTextColor(color);
+                    signalIcon.setColorFilter(color);
+                } else if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_TWO) {
                     int color = Color.parseColor("#FFEB3B");
                     networkQuality.setVisibility(View.VISIBLE);
                     localParticipantNQStatus.setText(unstableConnection);
                     localParticipantNQStatus.setTextColor(color);
                     signalIcon.setColorFilter(color);
                 } else {
-                    int color = Color.parseColor("#F44336");
-                    networkQuality.setVisibility(View.VISIBLE);
-                    localParticipantNQStatus.setText(badConnection);
-                    localParticipantNQStatus.setTextColor(color);
-                    signalIcon.setColorFilter(color);
+                    networkQuality.setVisibility(View.INVISIBLE);
                 }
             }
 
