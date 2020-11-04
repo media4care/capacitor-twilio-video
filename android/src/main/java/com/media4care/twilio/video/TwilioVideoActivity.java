@@ -84,6 +84,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String BUTTON_SIZE_OPTION = "buttonSize";
     private final String STATUS_TEXT_CONNECTING = "connectingText";
     private final String STATUS_TEXT_RECONNECTING = "reconnectingText";
+    private final String UNSTABLE_CONNECTION_TEXT = "unstableConnectionText";
+    private final String BAD_CONNECTION_TEXT = "badConnectionText";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -124,8 +126,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
 
+    private LinearLayout networkQuality;
     private TextView localParticipantNQStatus;
-    private TextView remoteParticipantNQStatus;
+    private ImageView signalIcon;
     /*
      * Audio management
      */
@@ -156,8 +159,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
         controls = findViewById(R.id.controls);
         statusText = findViewById(R.id.statusText);
 
+        networkQuality = findViewById(R.id.networkQualityToolbar);
         localParticipantNQStatus = findViewById(R.id.localParticipantQuality);
-        remoteParticipantNQStatus = findViewById(R.id.remoteParticipantQuality);
+        signalIcon = findViewById(R.id.signalIcon);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -930,7 +934,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
             @Override
             public void onNetworkQualityLevelChanged(@NonNull RemoteParticipant remoteParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
-                remoteParticipantNQStatus.setText("Remote: " + networkQualityLevel.name());
+                // TODO: Show remote participant connection quality
             }
         };
     }
@@ -939,7 +943,24 @@ public class TwilioVideoActivity extends AppCompatActivity {
         return new LocalParticipant.Listener() {
             @Override
             public void onNetworkQualityLevelChanged(@NonNull LocalParticipant localParticipant, @NonNull NetworkQualityLevel networkQualityLevel) {
-                localParticipantNQStatus.setText("Local: " + networkQualityLevel.name());
+                String unstableConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Unstable connection");
+                String badConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Bad connection");
+
+                if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_FIVE || networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_FOUR) {
+                    networkQuality.setVisibility(View.INVISIBLE);
+                } else if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_THREE) {
+                    int color = Color.parseColor("#FFEB3B");
+                    networkQuality.setVisibility(View.VISIBLE);
+                    localParticipantNQStatus.setText(unstableConnection);
+                    localParticipantNQStatus.setTextColor(color);
+                    signalIcon.setColorFilter(color);
+                } else {
+                    int color = Color.parseColor("#F44336");
+                    networkQuality.setVisibility(View.VISIBLE);
+                    localParticipantNQStatus.setText(badConnection);
+                    localParticipantNQStatus.setTextColor(color);
+                    signalIcon.setColorFilter(color);
+                }
             }
 
             @Override
