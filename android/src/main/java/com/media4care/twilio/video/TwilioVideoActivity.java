@@ -946,7 +946,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 String unstableConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Unstable connection");
                 String badConnection = pluginOptions.getString(UNSTABLE_CONNECTION_TEXT, "Bad connection");
 
-                if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_ONE) {
+                if (networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_ZERO || networkQualityLevel == NetworkQualityLevel.NETWORK_QUALITY_LEVEL_ONE) {
                     int color = Color.parseColor("#F44336");
                     networkQuality.setVisibility(View.VISIBLE);
                     localParticipantNQStatus.setText(badConnection);
