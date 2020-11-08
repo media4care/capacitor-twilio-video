@@ -61,6 +61,9 @@ class TwilioVideoViewController: UIViewController {
 
         self.statusLabel.text = "Connecting"
 
+        self.disconnectButton.layer.cornerRadius = self.disconnectButton.bounds.size.height/2
+        self.micButton.layer.cornerRadius = self.micButton.bounds.size.height/2
+
         self.connect()
     }
 
