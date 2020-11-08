@@ -2,6 +2,17 @@ import UIKit
 import Foundation
 import TwilioVideo
 
+enum TwilioEvent: String {
+    case connected = "connected";
+    case reconnecting = "reconnecting";
+    case reconnected = "reconnected";
+    case connectionFailed = "connection-failed";
+    case disconnected = "disconnected";
+    case participantConnected = "participant-connected";
+    case participantDisconnected = "participant-disconnected";
+    case hangup = "hangup";
+}
+
 class TwilioVideoViewController: UIViewController {
 
     // MARK: - View Controller Members
@@ -131,6 +142,7 @@ class TwilioVideoViewController: UIViewController {
     }
 
     @IBAction func disconnect(sender: AnyObject) {
+        sendTwilioEvent(eventName: TwilioEvent.hangup)
         disconnectRoom()
     }
 
@@ -277,6 +289,9 @@ class TwilioVideoViewController: UIViewController {
         }
     }
 
+    func sendTwilioEvent(eventName: TwilioEvent) {
+        NotificationCenter.default.post(name: Notification.Name("CALL_EVENTS"), object: nil, userInfo: ["event": eventName.rawValue])
+    }
 }
 
 // MARK: - RoomDelegate
@@ -287,25 +302,30 @@ extension TwilioVideoViewController: RoomDelegate {
         for remoteParticipant in room.remoteParticipants {
             remoteParticipant.delegate = self
         }
+        sendTwilioEvent(eventName: TwilioEvent.connected)
     }
 
     func roomDidDisconnect(room: Room, error: Error?) {
         logMessage(messageText: "Disconnected from room \(room.name), error = \(String(describing: error))")
         self.cleanupRemoteParticipant()
         self.room = nil
+        sendTwilioEvent(eventName: TwilioEvent.disconnected)
     }
 
     func roomDidFailToConnect(room: Room, error: Error) {
         logMessage(messageText: "Failed to connect to room with error = \(String(describing: error))")
         self.room = nil
+        sendTwilioEvent(eventName: TwilioEvent.connectionFailed)
     }
 
     func roomIsReconnecting(room: Room, error: Error) {
         logMessage(messageText: "Reconnecting to room \(room.name), error = \(String(describing: error))")
+        sendTwilioEvent(eventName: TwilioEvent.reconnecting)
     }
 
     func roomDidReconnect(room: Room) {
         logMessage(messageText: "Reconnected to room \(room.name)")
+        sendTwilioEvent(eventName: TwilioEvent.reconnected)
     }
 
     func participantDidConnect(room: Room, participant: RemoteParticipant) {
@@ -313,12 +333,14 @@ extension TwilioVideoViewController: RoomDelegate {
         participant.delegate = self
 
         logMessage(messageText: "Participant \(participant.identity) connected with \(participant.remoteAudioTracks.count) audio and \(participant.remoteVideoTracks.count) video tracks")
+        sendTwilioEvent(eventName: TwilioEvent.connected)
     }
 
     func participantDidDisconnect(room: Room, participant: RemoteParticipant) {
         logMessage(messageText: "Room \(room.name), Participant \(participant.identity) disconnected")
 
         // Nothing to do in this example. Subscription events are used to add/remove renderers.
+        sendTwilioEvent(eventName: TwilioEvent.disconnected)
     }
 }
 
