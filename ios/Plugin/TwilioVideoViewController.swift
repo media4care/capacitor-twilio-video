@@ -64,6 +64,9 @@ class TwilioVideoViewController: UIViewController {
         self.disconnectButton.layer.cornerRadius = self.disconnectButton.bounds.size.height/2
         self.micButton.layer.cornerRadius = self.micButton.bounds.size.height/2
 
+        self.disconnectButton.setImage(UIImage(named: "endCallNormal"), for: .normal)
+        self.micButton.setImage(UIImage(named: "micNormal"), for: .normal)
+
         self.connect()
     }
 
@@ -158,9 +161,9 @@ class TwilioVideoViewController: UIViewController {
 
             // Update the button title
             if self.localAudioTrack?.isEnabled == true {
-                self.micButton.setTitle("Mute", for: .normal)
+                self.micButton.setImage(UIImage(named: "micNormal"), for: .normal)
             } else {
-                self.micButton.setTitle("Unmute", for: .normal)
+                self.micButton.setImage(UIImage(named: "micOffNormal"), for: .normal)
             }
         }
     }

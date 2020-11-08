@@ -28,7 +28,6 @@
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" systemColor="systemRedColor"/>
                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                    <state key="normal" title="End"/>
                     <connections>
                         <action selector="disconnectWithSender:" destination="-1" eventType="touchUpInside" id="PjE-WV-6Eg"/>
                     </connections>
@@ -44,7 +43,6 @@
                     <rect key="frame" x="303" y="760" width="80" height="80"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" systemColor="systemRedColor"/>
-                    <state key="normal" title="Mute"/>
                     <connections>
                         <action selector="toggleMicWithSender:" destination="-1" eventType="touchUpInside" id="WeT-d9-6OE"/>
                     </connections>
