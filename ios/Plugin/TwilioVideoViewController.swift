@@ -38,6 +38,7 @@ class TwilioVideoViewController: UIViewController {
 
     @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var micButton: UIButton!
+    @IBOutlet weak var statusLabel: UILabel!
 
     deinit {
         // We are done with camera
@@ -57,6 +58,8 @@ class TwilioVideoViewController: UIViewController {
         // Disconnect and mic button will be displayed when the Client is connected to a Room.
         self.disconnectButton.isHidden = true
         self.micButton.isHidden = true
+
+        self.statusLabel.text = "Connecting"
 
         self.connect()
     }
@@ -298,6 +301,7 @@ class TwilioVideoViewController: UIViewController {
 extension TwilioVideoViewController: RoomDelegate {
     func roomDidConnect(room: Room) {
         logMessage(messageText: "Connected to room \(room.name) as \(room.localParticipant?.identity ?? "")")
+        self.statusLabel.text = ""
         // This example only renders 1 RemoteVideoTrack at a time. Listen for all events to decide which track to render.
         for remoteParticipant in room.remoteParticipants {
             remoteParticipant.delegate = self
@@ -320,11 +324,13 @@ extension TwilioVideoViewController: RoomDelegate {
 
     func roomIsReconnecting(room: Room, error: Error) {
         logMessage(messageText: "Reconnecting to room \(room.name), error = \(String(describing: error))")
+        self.statusLabel.text = "Reconnecting"
         sendTwilioEvent(eventName: TwilioEvent.reconnecting)
     }
 
     func roomDidReconnect(room: Room) {
         logMessage(messageText: "Reconnected to room \(room.name)")
+        self.statusLabel.text = ""
         sendTwilioEvent(eventName: TwilioEvent.reconnected)
     }
 

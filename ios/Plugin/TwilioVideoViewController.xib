@@ -14,6 +14,7 @@
                 <outlet property="disconnectButton" destination="bna-8k-U19" id="UIC-J9-Oll"/>
                 <outlet property="micButton" destination="2H4-tf-zRr" id="AGw-VQ-dND"/>
                 <outlet property="previewView" destination="ssV-WT-gr1" id="iqg-hg-GC1"/>
+                <outlet property="statusLabel" destination="h9Z-Cw-dMq" id="drD-se-Vss"/>
                 <outlet property="view" destination="iN0-l3-epB" id="dPC-Zy-AUO"/>
             </connections>
         </placeholder>
@@ -32,6 +33,13 @@
                         <action selector="disconnectWithSender:" destination="-1" eventType="touchUpInside" id="PjE-WV-6Eg"/>
                     </connections>
                 </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Connecting" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9Z-Cw-dMq">
+                    <rect key="frame" x="132" y="439" width="150" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </label>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2H4-tf-zRr">
                     <rect key="frame" x="303" y="760" width="80" height="80"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
