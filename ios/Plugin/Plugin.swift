@@ -9,6 +9,15 @@ import Capacitor
 public class TwilioVideoPlugin: CAPPlugin {
 
     var viewController: TwilioVideoViewController?
+    var twilioPluginEvent = "twilio-event"
+
+    @objc private func sendTwilioEvent(notification: NSNotification ){
+        if let event = notification.userInfo as? [String: String] {
+            for(key, eventName) in event {
+                self.notifyListeners(self.twilioPluginEvent, data: ["event": eventName, "detail": ""])
+            }
+        }
+    }
 
     @objc func joinTwilioRoom(_ call: CAPPluginCall) {
 
@@ -35,6 +44,8 @@ public class TwilioVideoPlugin: CAPPlugin {
         self.viewController!.accessToken = accessToken
         self.viewController!.modalPresentationStyle = UIModalPresentationStyle.fullScreen
 
+        NotificationCenter.default.addObserver(self, selector: #selector(self.sendTwilioEvent), name: Notification.Name("CALL_EVENTS"), object: nil)
+
         DispatchQueue.main.sync {
             self.bridge.viewController.present(self.viewController!, animated: false, completion: nil)
         }
@@ -47,6 +58,8 @@ public class TwilioVideoPlugin: CAPPlugin {
             viewController.disconnectRoom()
             self.viewController = nil
         }
+
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("CALL_EVENTS"), object: nil)
 
         DispatchQueue.main.sync {
             self.bridge.viewController.dismiss(animated: false, completion: nil)
