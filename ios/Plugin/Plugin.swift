@@ -42,4 +42,14 @@ public class TwilioVideoPlugin: CAPPlugin {
         call.resolve()
     }
 
+    @objc func leaveTwilioRoom(_ call: CAPPluginCall) {
+        if let viewController = self.viewController {
+            viewController.disconnectRoom()
+            self.viewController = nil
+        }
+
+        DispatchQueue.main.sync {
+            self.bridge.viewController.dismiss(animated: false, completion: nil)
+        }
+    }
 }

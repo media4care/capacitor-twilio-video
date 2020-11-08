@@ -121,13 +121,17 @@ class TwilioVideoViewController: UIViewController {
         self.showRoomUI()
     }
 
-    @IBAction func disconnect(sender: AnyObject) {
+    func disconnectRoom() {
         if let room = self.room {
             logMessage(messageText: "Attempting to disconnect from room \(room.name)")
             room.disconnect()
         } else {
             logMessage(messageText: "Warning: room is nil")
         }
+    }
+
+    @IBAction func disconnect(sender: AnyObject) {
+        disconnectRoom()
     }
 
     @IBAction func toggleMic(sender: AnyObject) {
