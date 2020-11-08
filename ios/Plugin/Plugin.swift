@@ -6,12 +6,4 @@ import Capacitor
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(TwilioVideoPlugin)
-public class TwilioVideoPlugin: CAPPlugin {
-
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.success([
-            "value": value
-        ])
-    }
-}
+public class TwilioVideoPlugin: CAPPlugin {}
