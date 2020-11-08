@@ -25,6 +25,19 @@ class TwilioVideoViewController: UIViewController {
     var roomName: String = ""
     var accessToken: String = ""
 
+    // TODO: enable autoHideControls
+    var autoHideControls: Bool = false
+
+    // TODO: add a button to switch camera
+    var showSwitchCamera: Bool = false
+    var showMute: Bool = false
+
+    // TODO: use enums
+    var buttonSize: String = "normal"
+
+    var connectingText: String = "Connecting"
+    var reconnectingText: String = "Reconnecting"
+
     var camera: CameraSource?
     var localVideoTrack: LocalVideoTrack?
     var localAudioTrack: LocalAudioTrack?
@@ -59,11 +72,12 @@ class TwilioVideoViewController: UIViewController {
         self.disconnectButton.isHidden = true
         self.micButton.isHidden = true
 
-        self.statusLabel.text = "Connecting"
+        self.statusLabel.text = self.connectingText
 
         self.disconnectButton.layer.cornerRadius = self.disconnectButton.bounds.size.height/2
         self.micButton.layer.cornerRadius = self.micButton.bounds.size.height/2
 
+        // TODO: change icons based on buttonSize
         self.disconnectButton.setImage(UIImage(named: "endCallNormal"), for: .normal)
         self.micButton.setImage(UIImage(named: "micNormal"), for: .normal)
 
@@ -198,8 +212,10 @@ class TwilioVideoViewController: UIViewController {
 
             if frontCamera != nil && backCamera != nil {
                 // We will flip camera on tap.
-                let tap = UITapGestureRecognizer(target: self, action: #selector(TwilioVideoViewController.flipCamera))
-                self.previewView.addGestureRecognizer(tap)
+                if self.showSwitchCamera {
+                    let tap = UITapGestureRecognizer(target: self, action: #selector(TwilioVideoViewController.flipCamera))
+                    self.previewView.addGestureRecognizer(tap)
+                }
             }
 
             camera!.startCapture(device: frontCamera != nil ? frontCamera! : backCamera!) { (captureDevice, videoFormat, error) in
@@ -257,7 +273,7 @@ class TwilioVideoViewController: UIViewController {
 
     // Update our UI based upon if we are in a Room or not
     func showRoomUI() {
-        self.micButton.isHidden = false
+        self.micButton.isHidden = !self.showMute
         self.disconnectButton.isHidden = false
     }
 
@@ -330,7 +346,7 @@ extension TwilioVideoViewController: RoomDelegate {
 
     func roomIsReconnecting(room: Room, error: Error) {
         logMessage(messageText: "Reconnecting to room \(room.name), error = \(String(describing: error))")
-        self.statusLabel.text = "Reconnecting"
+        self.statusLabel.text = self.reconnectingText
         sendTwilioEvent(eventName: TwilioEvent.reconnecting)
     }
 
