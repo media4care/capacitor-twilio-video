@@ -47,7 +47,7 @@
                         <action selector="toggleMicWithSender:" destination="-1" eventType="touchUpInside" id="WeT-d9-6OE"/>
                     </connections>
                 </button>
-                <view contentMode="scaleToFill" id="ssV-WT-gr1" customClass="TVIVideoView">
+                <view contentMode="scaleAspectFit" id="ssV-WT-gr1" customClass="TVIVideoView">
                     <rect key="frame" x="20" y="44" width="125" height="125"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <viewLayoutGuide key="safeArea" id="2EU-Mq-eHs"/>
