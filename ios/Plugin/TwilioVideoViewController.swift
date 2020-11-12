@@ -317,6 +317,19 @@ class TwilioVideoViewController: UIViewController {
     func sendTwilioEvent(eventName: TwilioEvent) {
         NotificationCenter.default.post(name: Notification.Name("CALL_EVENTS"), object: nil, userInfo: ["event": eventName.rawValue])
     }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { context in
+            // This is called during the animation
+        }, completion: { context in
+            if #available(iOS 13, *) {
+                if let windowScene = UIApplication.shared.keyWindow?.windowScene {
+                    UserInterfaceTracker.sceneInterfaceOrientationDidChange(windowScene)
+                }
+            }
+        })
+    }
 }
 
 // MARK: - RoomDelegate
