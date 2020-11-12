@@ -11,7 +11,13 @@ Pod::Spec.new do |s|
   s.author = package['author']
   s.source = { :git => package['repository']['url'], :tag => s.version.to_s }
   s.source_files = 'ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}'
+  s.resource_bundles = {
+    'Plugin' => [
+        'ios/Plugin/*.xib'
+    ]
+  }
   s.ios.deployment_target  = '11.0'
   s.dependency 'Capacitor'
+  s.dependency 'TwilioVideo', '3.7'
   s.swift_version = '5.1'
 end
