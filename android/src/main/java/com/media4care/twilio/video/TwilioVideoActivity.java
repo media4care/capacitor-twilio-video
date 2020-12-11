@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.media.AudioDeviceInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -139,6 +140,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private boolean disconnectedFromOnDestroy;
     private String remoteParticipantIdentity;
 
+    private AudioManager audioManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,6 +165,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
         networkQuality = findViewById(R.id.networkQualityToolbar);
         localParticipantNQStatus = findViewById(R.id.localParticipantQuality);
         signalIcon = findViewById(R.id.signalIcon);
+
+        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
         if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
@@ -349,14 +354,34 @@ public class TwilioVideoActivity extends AppCompatActivity {
         cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
         localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
 
+        configureAudioDevice();
+    }
+
+    private void configureAudioDevice() {
+
+        AudioDeviceInfo[] nativeDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        boolean externalDevice = false;
+
+        for (AudioDeviceInfo device : nativeDevices) {
+            int t = device.getType();
+            if (
+                t != AudioDeviceInfo.TYPE_BUILTIN_EARPIECE &&
+                t != AudioDeviceInfo.TYPE_BUILTIN_SPEAKER &&
+                t != AudioDeviceInfo.TYPE_TELEPHONY
+            ) {
+                externalDevice = true;
+                break;
+            }
+        }
+
         audioSwitch.start(
             (audioDevices, selectedAudioDevice) -> {
-                if(selectedAudioDevice != null && selectedAudioDevice instanceof AudioDevice.Earpiece) {
-                    selectSpeakerAsAudioOutput();
-                }
                 return Unit.INSTANCE;
             }
         );
+
+        if (!externalDevice && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+
     }
 
     private CameraCapturer.CameraSource getAvailableCameraSource() {
@@ -464,9 +489,6 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private void connectToRoom(String roomName, String accessToken) {
         audioSwitch = new AudioSwitch(getApplicationContext());
-
-        AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
-        if (selectedDevice instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
 
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
