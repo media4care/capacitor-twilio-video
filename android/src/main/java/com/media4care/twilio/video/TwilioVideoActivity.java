@@ -75,7 +75,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     public static final String CLOSE_EVENT = "close-twilio-activity";
     public static final String SEND_EVENT = "send-twilio-event";
 
-    private final int CONTROLS_ANIMATION_DELAY = 3000;
+    private final int CONTROLS_ANIMATION_DELAY = 6000;
     private final int CONTROLS_ANIMATION_DURATION = 300;
 
     private JSObject pluginOptions;
