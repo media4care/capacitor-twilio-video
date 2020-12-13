@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.AudioDeviceInfo;
@@ -23,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.getcapacitor.JSObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -121,9 +123,15 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton muteActionFab;
+    private FloatingActionButton bluetoothActionFab;
+    private FloatingActionButton speakerActionFab;
+    private FloatingActionButton headsetActionFab;
+    private FloatingActionButton audioOptionsFab;
+
     private FloatingActionButton toggleCameraActionFab;
     private TextView statusText;
     private LinearLayout controls;
+    private LinearLayout audioControls;
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
 
@@ -142,6 +150,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private AudioManager audioManager;
 
+    private boolean isBluetoothConnected;
+    private boolean isHeadsetConnected;
+    private boolean areAudioOptionsVisible = false;
+
+    private boolean isExternalDeviceConnected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,8 +172,15 @@ public class TwilioVideoActivity extends AppCompatActivity {
         bigHangupActionFab = findViewById(R.id.big_hangup_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
+
+        speakerActionFab = findViewById(R.id.speaker_action_fab);
+        bluetoothActionFab = findViewById(R.id.bluetooth_action_fab);
+        headsetActionFab = findViewById(R.id.headset_action_fab);
+        audioOptionsFab = findViewById(R.id.audio_options_fab);
+
         toggleCameraActionFab = findViewById(R.id.toggle_cam_action_fab);
         controls = findViewById(R.id.controls);
+        audioControls = findViewById(R.id.audio_controls);
         statusText = findViewById(R.id.statusText);
 
         networkQuality = findViewById(R.id.networkQualityToolbar);
@@ -234,6 +255,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
         if (controls.getVisibility() == View.VISIBLE || !autoHide) return;
 
         controls.setVisibility(View.VISIBLE);
+        if (isExternalDeviceConnected) audioControls.setVisibility(View.VISIBLE);
+
         controls
             .animate()
             .alpha(0f)
@@ -249,6 +272,42 @@ public class TwilioVideoActivity extends AppCompatActivity {
                     }
                 }
             );
+
+        if (isExternalDeviceConnected) audioControls
+            .animate()
+            .alpha(0f)
+            .setStartDelay(CONTROLS_ANIMATION_DELAY)
+            .setDuration(CONTROLS_ANIMATION_DURATION)
+            .setListener(
+                new AnimatorListenerAdapter() {
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hideAudioOptions();
+                        audioControls.setVisibility(View.GONE);
+                        audioControls.setAlpha(1f);
+                    }
+                }
+            );
+    }
+
+    private void hideAudioOptions () {
+        speakerActionFab.setVisibility(View.GONE);
+        bluetoothActionFab.setVisibility(View.GONE);
+        headsetActionFab.setVisibility(View.GONE);
+        areAudioOptionsVisible = false;
+    }
+
+    private void toggleAudioOptions() {
+        if (areAudioOptionsVisible) {
+            hideAudioOptions();
+        } else {
+            AudioDevice selectedDevice = audioSwitch.getSelectedAudioDevice();
+            if (!(selectedDevice instanceof AudioDevice.Speakerphone)) speakerActionFab.setVisibility(View.VISIBLE);
+            if (!(selectedDevice instanceof AudioDevice.BluetoothHeadset) && isBluetoothConnected) bluetoothActionFab.setVisibility(View.VISIBLE);
+            if (!(selectedDevice instanceof AudioDevice.WiredHeadset) && isHeadsetConnected) headsetActionFab.setVisibility(View.VISIBLE);
+            areAudioOptionsVisible = true;
+        }
     }
 
     private void initializeUI() {
@@ -263,6 +322,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         statusText.setText(connectingText);
 
         controls.setVisibility(autoHide ? View.GONE : View.VISIBLE);
+        audioControls.setVisibility(autoHide ? View.GONE : View.VISIBLE);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
         params.gravity = getLayoutGravity(position);
@@ -273,9 +333,16 @@ public class TwilioVideoActivity extends AppCompatActivity {
         muteActionFab.setVisibility(showMute ? View.VISIBLE : View.INVISIBLE);
         toggleCameraActionFab.setVisibility(showToggleCamera ? View.VISIBLE : View.INVISIBLE);
 
+        hideAudioOptions();
+
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         muteActionFab.setOnClickListener(muteClickListener());
         toggleCameraActionFab.setOnClickListener(toggleCamClickListener());
+
+        audioOptionsFab.setOnClickListener(audioOptionsFabClickListener());
+        bluetoothActionFab.setOnClickListener(bluetoothActionFabClickListener());
+        speakerActionFab.setOnClickListener(speakerActionFabClickListener());
+        headsetActionFab.setOnClickListener(headsetActionFabClickListener());
 
         if (buttonSize.equals("large")) {
             bigHangupActionFab.setOnClickListener(hangupClickListener());
@@ -360,7 +427,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private void configureAudioDevice() {
 
         AudioDeviceInfo[] nativeDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-        boolean externalDevice = false;
+
+        isExternalDeviceConnected = false;
 
         for (AudioDeviceInfo device : nativeDevices) {
             int t = device.getType();
@@ -369,18 +437,53 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 t != AudioDeviceInfo.TYPE_BUILTIN_SPEAKER &&
                 t != AudioDeviceInfo.TYPE_TELEPHONY
             ) {
-                externalDevice = true;
+                isExternalDeviceConnected = true;
                 break;
             }
         }
 
         audioSwitch.start(
             (audioDevices, selectedAudioDevice) -> {
+
+                isBluetoothConnected = false;
+                isHeadsetConnected = false;
+
+                // hide/show external audio buttons if present
+                for (AudioDevice audioDevice: audioDevices) {
+                    if (audioDevice instanceof AudioDevice.BluetoothHeadset) isBluetoothConnected = true;
+                    else if (audioDevice instanceof AudioDevice.WiredHeadset) isHeadsetConnected = true;
+                }
+
+                boolean isSpeakerphoneSelected = selectedAudioDevice instanceof AudioDevice.Speakerphone;
+
+                // update external audio buttons is selected
+                boolean isBluetoothSelected = selectedAudioDevice instanceof AudioDevice.BluetoothHeadset;
+                boolean isHeadsetSelected = selectedAudioDevice instanceof AudioDevice.WiredHeadset;
+
+                isExternalDeviceConnected = isBluetoothConnected || isHeadsetConnected;
+
+                // update audio main icon
+                if (isExternalDeviceConnected) {
+                    int icon = isBluetoothSelected
+                        ? R.drawable.ic_bluetooth_white_24dp
+                        : isHeadsetSelected
+                            ? R.drawable.ic_headset_white_24dp
+                            : R.drawable.ic_speaker_white_24dp;
+                    audioOptionsFab.setImageDrawable(ContextCompat.getDrawable(TwilioVideoActivity.this, icon));
+                }
+
+                if (areAudioOptionsVisible){
+                    bluetoothActionFab.setVisibility(isBluetoothConnected && !isBluetoothSelected ? View.VISIBLE: View.GONE);
+                    headsetActionFab.setVisibility(isHeadsetConnected && !isHeadsetSelected ? View.VISIBLE: View.GONE);
+                    speakerActionFab.setVisibility(!isSpeakerphoneSelected ? View.VISIBLE: View.GONE);
+                }
+
                 return Unit.INSTANCE;
             }
         );
 
-        if (!externalDevice && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+
 
     }
 
@@ -483,6 +586,26 @@ public class TwilioVideoActivity extends AppCompatActivity {
             if(audioDevice instanceof AudioDevice.Speakerphone) {
                 audioSwitch.selectDevice(audioDevice);
                 break;
+            }
+        }
+    }
+
+    private void selectBluetoothHeadsetAsAudioOutput() {
+        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+        for (AudioDevice audioDevice: devices) {
+            if(audioDevice instanceof AudioDevice.BluetoothHeadset) {
+                audioSwitch.selectDevice(audioDevice);
+                return;
+            }
+        }
+    }
+
+    private void selectWiredHeadsetAsAudioOutput() {
+        List<AudioDevice> devices = audioSwitch.getAvailableAudioDevices();
+        for (AudioDevice audioDevice: devices) {
+            if(audioDevice instanceof AudioDevice.WiredHeadset) {
+                audioSwitch.selectDevice(audioDevice);
+                return;
             }
         }
     }
@@ -1050,6 +1173,30 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 int icon = enable ? R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
                 muteActionFab.setImageDrawable(ContextCompat.getDrawable(TwilioVideoActivity.this, icon));
             }
+        };
+    }
+
+    private View.OnClickListener audioOptionsFabClickListener() {
+        return v -> {
+            toggleAudioOptions();
+        };
+    }
+
+    private View.OnClickListener bluetoothActionFabClickListener() {
+        return v -> {
+            selectBluetoothHeadsetAsAudioOutput();
+        };
+    }
+
+    private View.OnClickListener speakerActionFabClickListener() {
+        return v -> {
+            selectSpeakerAsAudioOutput();
+        };
+    }
+
+    private View.OnClickListener headsetActionFabClickListener() {
+        return v -> {
+            selectWiredHeadsetAsAudioOutput();
         };
     }
 
