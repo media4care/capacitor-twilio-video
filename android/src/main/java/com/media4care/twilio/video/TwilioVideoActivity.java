@@ -89,6 +89,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String STATUS_TEXT_RECONNECTING = "reconnectingText";
     private final String UNSTABLE_CONNECTION_TEXT = "unstableConnectionText";
     private final String BAD_CONNECTION_TEXT = "badConnectionText";
+    private final String SHOW_AUDIO_CONTROLS = "showAudioControls";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -155,6 +156,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private boolean areAudioOptionsVisible = false;
 
     private boolean isExternalDeviceConnected = false;
+    private boolean showAudioControls = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,7 +257,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         if (controls.getVisibility() == View.VISIBLE || !autoHide) return;
 
         controls.setVisibility(View.VISIBLE);
-        if (isExternalDeviceConnected) audioControls.setVisibility(View.VISIBLE);
+        if (showAudioControls && isExternalDeviceConnected) audioControls.setVisibility(View.VISIBLE);
 
         controls
             .animate()
@@ -273,7 +275,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 }
             );
 
-        if (isExternalDeviceConnected) audioControls
+        if (showAudioControls && isExternalDeviceConnected) audioControls
             .animate()
             .alpha(0f)
             .setStartDelay(CONTROLS_ANIMATION_DELAY)
@@ -315,6 +317,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         Boolean showSwitchCamera = pluginOptions.getBoolean(SHOW_SWITCH_CAMERA_OPTION, true);
         Boolean showMute = pluginOptions.getBoolean(SHOW_MUTE_OPTION, true);
         Boolean showToggleCamera = pluginOptions.getBoolean(SHOW_DISABLE_VIDEO, true);
+        showAudioControls = pluginOptions.getBoolean(SHOW_AUDIO_CONTROLS, true);
         String position = pluginOptions.getString(CONTROLS_POSITION_OPTION, "bottom_end");
         String buttonSize = pluginOptions.getString(BUTTON_SIZE_OPTION, "normal");
         String connectingText = pluginOptions.getString(STATUS_TEXT_CONNECTING, "Connecting...");
@@ -322,7 +325,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
         statusText.setText(connectingText);
 
         controls.setVisibility(autoHide ? View.GONE : View.VISIBLE);
-        audioControls.setVisibility(autoHide ? View.GONE : View.VISIBLE);
+        audioControls.setVisibility(autoHide || !showAudioControls ? View.GONE : View.VISIBLE);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) controls.getLayoutParams();
         params.gravity = getLayoutGravity(position);
