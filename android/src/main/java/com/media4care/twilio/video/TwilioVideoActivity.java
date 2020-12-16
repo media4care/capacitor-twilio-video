@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.AudioDeviceInfo;
 import android.os.Bundle;
+import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -251,6 +252,20 @@ public class TwilioVideoActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private boolean canCancelAnimation() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
+    private void refreshControls() {
+        if (canCancelAnimation()){
+            controls.animate().cancel();
+            if (showAudioControls && isExternalDeviceConnected) audioControls.animate().cancel();
+        }
+        controls.setVisibility(View.GONE);
+        audioControls.setVisibility(View.GONE);
+        showForAFewSeconds();
+    }
+
     private void showForAFewSeconds() {
         Boolean autoHide = pluginOptions.getBoolean(AUTO_HIDE_CONTROLS_OPTION, true);
 
@@ -480,6 +495,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
                     headsetActionFab.setVisibility(isHeadsetConnected && !isHeadsetSelected ? View.VISIBLE: View.GONE);
                     speakerActionFab.setVisibility(!isSpeakerphoneSelected ? View.VISIBLE: View.GONE);
                 }
+
+                if (isExternalDeviceConnected) refreshControls();
 
                 return Unit.INSTANCE;
             }
