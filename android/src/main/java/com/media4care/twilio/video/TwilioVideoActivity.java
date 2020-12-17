@@ -496,7 +496,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
                     speakerActionFab.setVisibility(!isSpeakerphoneSelected ? View.VISIBLE: View.GONE);
                 }
 
-                if (isExternalDeviceConnected) refreshControls();
+                if (isExternalDeviceConnected && showAudioControls) refreshControls();
 
                 return Unit.INSTANCE;
             }
