@@ -28,7 +28,7 @@
         android:id="@+id/controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="bottom|center"
         android:layout_marginLeft="32dp"
         android:layout_marginRight="32dp"
         android:layout_marginBottom="32dp"
@@ -126,6 +126,67 @@
             android:paddingEnd="14dp"
             android:src="@drawable/ic_signal_cellular_alt_24dp" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/audio_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/bluetooth_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_bluetooth_white_24dp"
+            android:backgroundTint="#347ace"
+            android:tint="#FFFFFF"
+            android:visibility="gone"
+            app:borderWidth="0dp"
+            app:fabSize="mini" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/headset_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_headset_white_24dp"
+            android:backgroundTint="#347ace"
+            android:tint="#FFFFFF"
+            android:visibility="gone"
+            app:borderWidth="0dp"
+            app:fabSize="mini" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/speaker_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_speaker_white_24dp"
+            android:backgroundTint="#347ace"
+            android:tint="#FFFFFF"
+            android:visibility="gone"
+            app:borderWidth="0dp"
+            app:fabSize="mini" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/audio_options_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FFFFFF"
+            android:tint="#000000"
+            android:src="@drawable/ic_unfold_more_24dp"
+            app:borderWidth="0dp"
+            app:fabSize="normal"
+            app:maxImageSize="24dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
