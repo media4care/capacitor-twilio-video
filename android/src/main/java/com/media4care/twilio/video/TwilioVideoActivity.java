@@ -257,11 +257,15 @@ public class TwilioVideoActivity extends AppCompatActivity {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
-    private void refreshControls() {
+    private void cancelAnimations() {
         if (canCancelAnimation()){
             controls.animate().cancel();
             if (showAudioControls && isExternalDeviceConnected) audioControls.animate().cancel();
         }
+    }
+
+    private void refreshControls() {
+        cancelAnimations();
         controls.setVisibility(View.GONE);
         audioControls.setVisibility(View.GONE);
         showForAFewSeconds();
