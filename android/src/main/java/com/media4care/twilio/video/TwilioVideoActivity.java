@@ -467,7 +467,12 @@ public class TwilioVideoActivity extends AppCompatActivity {
             }
         }
 
-        startAudioSwitchAndListenChange();
+        try {
+            startAudioSwitchAndListenChange();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "unable to start audio switch");
+        }
 
         if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
 
