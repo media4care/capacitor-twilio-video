@@ -516,10 +516,19 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.getVisibility() == View.GONE) {
             thumbnailVideoView.setVisibility(View.VISIBLE);
-            localVideoTrack.removeRenderer(primaryVideoView);
-            localVideoTrack.addRenderer(thumbnailVideoView);
+            if (localVideoTrack != null) {
+                localVideoTrack.removeRenderer(primaryVideoView);
+                localVideoTrack.addRenderer(thumbnailVideoView);
+            } else {
+                Log.e(TAG, "localVideoTrack is null");
+            }
             localVideoView = thumbnailVideoView;
-            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            if (cameraCapturerCompat != null) {
+                thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            } else {
+                Log.e(TAG, "cameraCapturerCompat is null");
+            }
+
         }
     }
 
@@ -531,7 +540,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 localVideoTrack.addRenderer(primaryVideoView);
             }
             localVideoView = primaryVideoView;
-            primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            if (cameraCapturerCompat != null) {
+                primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            } else {
+                Log.e(TAG, "cameraCapturerCompat is null");
+            }
         }
     }
 
