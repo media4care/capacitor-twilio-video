@@ -224,6 +224,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        super.onStop();
 
         audioSwitch.stop();
         setVolumeControlStream(savedVolumeControlStream);
@@ -250,7 +251,6 @@ public class TwilioVideoActivity extends AppCompatActivity {
             localVideoTrack = null;
         }
 
-        super.onStop();
     }
 
     private boolean canCancelAnimation() {
