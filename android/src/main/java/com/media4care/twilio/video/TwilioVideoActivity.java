@@ -467,6 +467,13 @@ public class TwilioVideoActivity extends AppCompatActivity {
             }
         }
 
+        startAudioSwitchAndListenChange();
+
+        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+
+    }
+
+    private void startAudioSwitchAndListenChange () {
         audioSwitch.start(
             (audioDevices, selectedAudioDevice) -> {
 
@@ -508,11 +515,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             }
         );
-
-        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
-
-
     }
+
 
     private CameraCapturer.CameraSource getAvailableCameraSource() {
         return (CameraCapturer.isSourceAvailable(CameraCapturer.CameraSource.FRONT_CAMERA))
