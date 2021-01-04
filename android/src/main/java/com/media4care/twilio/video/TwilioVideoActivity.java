@@ -453,7 +453,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         AudioDeviceInfo[] nativeDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
 
-        isExternalDeviceConnected = false;
+        boolean isExternalDeviceDetected = false;
 
         for (AudioDeviceInfo device : nativeDevices) {
             int t = device.getType();
@@ -462,7 +462,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 t != AudioDeviceInfo.TYPE_BUILTIN_SPEAKER &&
                 t != AudioDeviceInfo.TYPE_TELEPHONY
             ) {
-                isExternalDeviceConnected = true;
+                isExternalDeviceDetected = true;
                 break;
             }
         }
@@ -474,7 +474,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
             Log.e(TAG, "unable to start audio switch");
         }
 
-        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+        if (!isExternalDeviceDetected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
 
     }
 
