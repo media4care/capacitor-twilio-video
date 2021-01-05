@@ -223,7 +223,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
+        super.onStop();
+
+        cancelAnimations();
+
         audioSwitch.stop();
         setVolumeControlStream(savedVolumeControlStream);
 
@@ -249,18 +253,21 @@ public class TwilioVideoActivity extends AppCompatActivity {
             localVideoTrack = null;
         }
 
-        super.onDestroy();
     }
 
     private boolean canCancelAnimation() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
-    private void refreshControls() {
+    private void cancelAnimations() {
         if (canCancelAnimation()){
             controls.animate().cancel();
             if (showAudioControls && isExternalDeviceConnected) audioControls.animate().cancel();
         }
+    }
+
+    private void refreshControls() {
+        cancelAnimations();
         controls.setVisibility(View.GONE);
         audioControls.setVisibility(View.GONE);
         showForAFewSeconds();
@@ -460,6 +467,18 @@ public class TwilioVideoActivity extends AppCompatActivity {
             }
         }
 
+        try {
+            startAudioSwitchAndListenChange();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "unable to start audio switch");
+        }
+
+        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
+
+    }
+
+    private void startAudioSwitchAndListenChange () {
         audioSwitch.start(
             (audioDevices, selectedAudioDevice) -> {
 
@@ -501,11 +520,8 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             }
         );
-
-        if (!isExternalDeviceConnected && audioSwitch.getSelectedAudioDevice() instanceof AudioDevice.Earpiece) selectSpeakerAsAudioOutput();
-
-
     }
+
 
     private CameraCapturer.CameraSource getAvailableCameraSource() {
         return (CameraCapturer.isSourceAvailable(CameraCapturer.CameraSource.FRONT_CAMERA))
@@ -516,10 +532,19 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.getVisibility() == View.GONE) {
             thumbnailVideoView.setVisibility(View.VISIBLE);
-            localVideoTrack.removeRenderer(primaryVideoView);
-            localVideoTrack.addRenderer(thumbnailVideoView);
+            if (localVideoTrack != null) {
+                localVideoTrack.removeRenderer(primaryVideoView);
+                localVideoTrack.addRenderer(thumbnailVideoView);
+            } else {
+                Log.e(TAG, "localVideoTrack is null");
+            }
             localVideoView = thumbnailVideoView;
-            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            if (cameraCapturerCompat != null) {
+                thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            } else {
+                Log.e(TAG, "cameraCapturerCompat is null");
+            }
+
         }
     }
 
@@ -531,7 +556,11 @@ public class TwilioVideoActivity extends AppCompatActivity {
                 localVideoTrack.addRenderer(primaryVideoView);
             }
             localVideoView = primaryVideoView;
-            primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            if (cameraCapturerCompat != null) {
+                primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() == CameraCapturer.CameraSource.FRONT_CAMERA);
+            } else {
+                Log.e(TAG, "cameraCapturerCompat is null");
+            }
         }
     }
 
