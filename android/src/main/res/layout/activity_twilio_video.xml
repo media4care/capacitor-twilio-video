@@ -44,6 +44,7 @@
             android:layout_gravity="center"
             android:layout_marginRight="75dp"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="#347ace"
             android:src="@drawable/ic_switch_camera_white_24dp"
             app:borderWidth="0dp" />
 
@@ -56,6 +57,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="#347ace"
             android:src="@drawable/ic_mic_white_24dp"
             app:borderWidth="0dp"
             app:fabSize="normal" />
@@ -68,7 +70,9 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="#347ace"
             android:src="@drawable/ic_videocam_white_24dp"
+            android:visibility="invisible"
             app:borderWidth="0dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -132,7 +133,7 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
     private FloatingActionButton toggleCameraActionFab;
     private TextView statusText;
-    private LinearLayout controls;
+    private RelativeLayout controls;
     private LinearLayout audioControls;
     private FloatingActionButton hangupActionFab;
     private FloatingActionButton bigHangupActionFab;
