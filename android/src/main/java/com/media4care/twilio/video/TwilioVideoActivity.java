@@ -60,6 +60,8 @@ import com.twilio.video.VideoCodec;
 import com.twilio.video.VideoRenderer;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
+import com.twilio.video.VideoDimensions;
+import com.twilio.video.VideoConstraints;
 import java.util.Collections;
 import kotlin.Unit;
 import org.json.JSONException;
@@ -91,6 +93,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String UNSTABLE_CONNECTION_TEXT = "unstableConnectionText";
     private final String BAD_CONNECTION_TEXT = "badConnectionText";
     private final String SHOW_AUDIO_CONTROLS = "showAudioControls";
+    private final String VIDEO_QUALITY_OPTION = "videoQuality";
+    private final String VGA = "vga";
+    private final String HD = "hd";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -439,12 +444,22 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     private void createAudioAndVideoTracks() {
+
+        String videoQuality = pluginOptions.getString(VIDEO_QUALITY_OPTION, VGA);
+
+        VideoDimensions videoDimensions = videoQuality.equals(HD) ? VideoDimensions.HD_720P_VIDEO_DIMENSIONS : VideoDimensions.VGA_VIDEO_DIMENSIONS;
+        VideoConstraints videoConstraints =
+            new VideoConstraints.Builder()
+                    .maxFps(24)
+                    .maxVideoDimensions(videoDimensions)
+                    .build();
+
         // Share your microphone
         localAudioTrack = LocalAudioTrack.create(this, true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
-        localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), LOCAL_VIDEO_TRACK_NAME);
+        localVideoTrack = LocalVideoTrack.create(this, true, cameraCapturerCompat.getVideoCapturer(), videoConstraints);
 
         configureAudioDevice();
     }
