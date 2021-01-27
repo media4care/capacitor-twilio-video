@@ -192,16 +192,16 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
-        if (!checkPermissionForCameraAndMicrophone()) {
-            requestPermissionForCameraAndMicrophone();
-        } else {
-            connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
-        }
-
         try {
             pluginOptions = new JSObject(arguments.getString("options"));
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        if (!checkPermissionForCameraAndMicrophone()) {
+            requestPermissionForCameraAndMicrophone();
+        } else {
+            connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
         }
 
         initializeUI();
