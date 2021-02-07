@@ -13,6 +13,11 @@ enum TwilioEvent: String {
     case hangup = "hangup";
 }
 
+enum VideoQuality: String {
+    case HIGH = "high";
+    case LOW = "low";
+}
+
 class TwilioVideoViewController: UIViewController {
 
     // MARK: - View Controller Members
@@ -31,6 +36,8 @@ class TwilioVideoViewController: UIViewController {
     // TODO: add a button to switch camera
     var showSwitchCamera: Bool = false
     var showMute: Bool = false
+
+    var videoQuality: String = VideoQuality.LOW.rawValue
 
     // TODO: use enums
     var buttonSize: String = "normal"
@@ -143,6 +150,18 @@ class TwilioVideoViewController: UIViewController {
             // Use the local media that we prepared earlier.
             builder.audioTracks = self.localAudioTrack != nil ? [self.localAudioTrack!] : [LocalAudioTrack]()
             builder.videoTracks = self.localVideoTrack != nil ? [self.localVideoTrack!] : [LocalVideoTrack]()
+
+            // limit upstream bitrate depending on VideoQuality param
+            // 16 kbps for audio, 512 kbps for low quality video, 0 for max
+            builder.encodingParameters = EncodingParameters(audioBitrate:16, videoBitrate: self.videoQuality == VideoQuality.LOW.rawValue ? 512 : 0)
+
+            // limit downstream bitrate depending on VideoQuality param
+            if self.videoQuality == VideoQuality.LOW.rawValue {
+                let videoBandwidthProfileOptions = VideoBandwidthProfileOptions { builder in
+                    builder.maxSubscriptionBitrate = 528 // 512 + 16
+                }
+                builder.bandwidthProfileOptions = BandwidthProfileOptions(videoOptions: videoBandwidthProfileOptions)
+            }
 
             // The name of the Room where the Client will attempt to connect to. Please note that if you pass an empty
             // Room `name`, the Client will create one for you. You can get the name or sid from any connected Room.
