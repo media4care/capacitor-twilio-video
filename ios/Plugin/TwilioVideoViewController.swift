@@ -151,6 +151,9 @@ class TwilioVideoViewController: UIViewController {
             builder.audioTracks = self.localAudioTrack != nil ? [self.localAudioTrack!] : [LocalAudioTrack]()
             builder.videoTracks = self.localVideoTrack != nil ? [self.localVideoTrack!] : [LocalVideoTrack]()
 
+            builder.isNetworkQualityEnabled = true
+            builder.networkQualityConfiguration = NetworkQualityConfiguration(localVerbosity: .minimal, remoteVerbosity: .minimal)
+
             // limit upstream bitrate depending on VideoQuality param
             // 16 kbps for audio, 512 kbps for low quality video, 0 for max
             builder.encodingParameters = EncodingParameters(audioBitrate:16, videoBitrate: self.videoQuality == VideoQuality.LOW.rawValue ? 512 : 0)
