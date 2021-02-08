@@ -37,47 +37,47 @@ public class TwilioVideoPlugin: CAPPlugin {
         let bundleURL = podBundle.url(forResource: "Plugin", withExtension: "bundle")!
         let bundle = Bundle(url: bundleURL)!
 
-        if self.viewController != nil {
-            NSLog("Unexpected behaviour: a view already exists")
-        }
-
-        self.viewController = TwilioVideoViewController(nibName: "TwilioVideoViewController", bundle: bundle)
-        self.viewController!.roomName = roomName
-        self.viewController!.accessToken = accessToken
-        self.viewController!.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-
-        if (options != nil) {
-            if let autoHideControls = options!["autoHideControls"] as? Bool {
-                self.viewController!.autoHideControls = autoHideControls
-            }
-
-            if let showSwitchCamera = options!["showSwitchCamera"] as? Bool {
-                self.viewController!.showSwitchCamera = showSwitchCamera
-            }
-
-            if let showMute = options!["showMute"] as? Bool {
-                self.viewController!.showMute = showMute
-            }
-
-            if let buttonSize = options!["buttonSize"] as? String {
-                self.viewController!.buttonSize = buttonSize
-            }
-
-            if let connectingText = options!["connectingText"] as? String {
-                self.viewController!.connectingText = connectingText
-            }
-
-            if let reconnectingText = options!["reconnectingText"] as? String {
-                self.viewController!.reconnectingText = reconnectingText
-            }
-
-            // TODO: add options for connection quality, controlsPosition
-        }
-
         NotificationCenter.default.addObserver(self, selector: #selector(self.sendTwilioEvent), name: Notification.Name("CALL_EVENTS"), object: nil)
 
         DispatchQueue.main.sync {
-            self.bridge.viewController.present(self.viewController!, animated: false, completion: nil)
+            let viewController = TwilioVideoViewController(nibName: "TwilioVideoViewController", bundle: bundle)
+            viewController.roomName = roomName
+            viewController.accessToken = accessToken
+            
+            if (options != nil) {
+                if let autoHideControls = options!["autoHideControls"] as? Bool {
+                    viewController.autoHideControls = autoHideControls
+                }
+
+                if let showSwitchCamera = options!["showSwitchCamera"] as? Bool {
+                    viewController.showSwitchCamera = showSwitchCamera
+                }
+
+                if let showMute = options!["showMute"] as? Bool {
+                    viewController.showMute = showMute
+                }
+
+                if let buttonSize = options!["buttonSize"] as? String {
+                    viewController.buttonSize = buttonSize
+                }
+
+                if let connectingText = options!["connectingText"] as? String {
+                    viewController.connectingText = connectingText
+                }
+
+                if let reconnectingText = options!["reconnectingText"] as? String {
+                    viewController.reconnectingText = reconnectingText
+                }
+
+                if let videoQuality = options!["videoQuality"] as? String {
+                    viewController.videoQuality = videoQuality
+                }
+
+                // TODO: add options for controlsPosition
+            }
+            
+            viewController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+            self.bridge.viewController.present(viewController, animated: false, completion: nil)
         }
 
         call.resolve()

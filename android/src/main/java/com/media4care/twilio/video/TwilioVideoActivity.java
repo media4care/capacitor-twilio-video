@@ -46,6 +46,9 @@ import com.twilio.video.LocalVideoTrackPublication;
 import com.twilio.video.NetworkQualityConfiguration;
 import com.twilio.video.NetworkQualityLevel;
 import com.twilio.video.NetworkQualityVerbosity;
+import com.twilio.video.BandwidthProfileOptions;
+import com.twilio.video.VideoBandwidthProfileOptions;
+import com.twilio.video.EncodingParameters;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -91,6 +94,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
     private final String UNSTABLE_CONNECTION_TEXT = "unstableConnectionText";
     private final String BAD_CONNECTION_TEXT = "badConnectionText";
     private final String SHOW_AUDIO_CONTROLS = "showAudioControls";
+    private final String VIDEO_QUALITY_OPTION = "videoQuality";
+    private final String LOW = "low";
+    private final String HIGH = "high";
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -192,16 +198,16 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
-        if (!checkPermissionForCameraAndMicrophone()) {
-            requestPermissionForCameraAndMicrophone();
-        } else {
-            connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
-        }
-
         try {
             pluginOptions = new JSObject(arguments.getString("options"));
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        if (!checkPermissionForCameraAndMicrophone()) {
+            requestPermissionForCameraAndMicrophone();
+        } else {
+            connectToRoom(arguments.getString("roomName"), arguments.getString("accessToken"));
         }
 
         initializeUI();
@@ -439,6 +445,9 @@ public class TwilioVideoActivity extends AppCompatActivity {
     }
 
     private void createAudioAndVideoTracks() {
+
+        String videoQuality = pluginOptions.getString(VIDEO_QUALITY_OPTION, LOW);
+
         // Share your microphone
         localAudioTrack = LocalAudioTrack.create(this, true, LOCAL_AUDIO_TRACK_NAME);
 
@@ -701,6 +710,18 @@ public class TwilioVideoActivity extends AppCompatActivity {
 
         connectOptionsBuilder.networkQualityConfiguration(nqConfiguration);
 
+        String videoQuality = pluginOptions.getString(VIDEO_QUALITY_OPTION, LOW);
+
+        // limit upstream bitrate depending on VideoQuality param
+        // 16 kbps for audio, 512 kbps for low quality video, 0 for max
+        connectOptionsBuilder.encodingParameters(new EncodingParameters(16, videoQuality.equals(LOW) ? 512 : 0));
+
+        // limit downstream bitrate depending on VideoQuality param
+        if (videoQuality.equals(LOW)) {
+            long subscriptionBitrate = 528L; // 512 + 16
+            connectOptionsBuilder.bandwidthProfile(new BandwidthProfileOptions(new VideoBandwidthProfileOptions.Builder().maxSubscriptionBitrate(subscriptionBitrate).build()));
+        }
+    
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
     }
 
