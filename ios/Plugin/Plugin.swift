@@ -77,7 +77,7 @@ public class TwilioVideoPlugin: CAPPlugin {
             }
             
             viewController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-            self.bridge.viewController.present(viewController, animated: false, completion: nil)
+            self.bridge?.viewController?.present(viewController, animated: false, completion: nil)
         }
 
         call.resolve()
@@ -92,7 +92,7 @@ public class TwilioVideoPlugin: CAPPlugin {
         NotificationCenter.default.removeObserver(self, name: Notification.Name("CALL_EVENTS"), object: nil)
 
         DispatchQueue.main.sync {
-            self.bridge.viewController.dismiss(animated: false, completion: nil)
+            self.bridge?.viewController?.dismiss(animated: false, completion: nil)
         }
     }
 }
